@@ -1,0 +1,83 @@
+<title>aws_rds README</title>
+<style>
+  body { font-family: -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; max-width: 860px; margin: 2rem auto; padding: 0 1.5rem; line-height: 1.6; color: #1a1a1a; }
+  h1 { border-bottom: 2px solid #2563eb; padding-bottom: .4rem; }
+  h2 { margin-top: 2.2rem; color: #1e3a8a; }
+  code { background: #f1f5f9; padding: .15rem .4rem; border-radius: 4px; font-size: .92em; }
+  pre { background: #0f172a; color: #e2e8f0; padding: 1rem 1.2rem; border-radius: 8px; overflow-x: auto; }
+  pre code { background: none; padding: 0; color: inherit; }
+  table { border-collapse: collapse; width: 100%; margin: .8rem 0; }
+  th, td { border: 1px solid #e2e8f0; padding: .5rem .7rem; text-align: left; font-size: .95em; }
+  th { background: #f8fafc; }
+  .warn { background: #fef2f2; border-left: 4px solid #dc2626; padding: .8rem 1rem; margin: 1rem 0; }
+  .note { background: #eff6ff; border-left: 4px solid #2563eb; padding: .8rem 1rem; margin: 1rem 0; }
+</style>
+
+<h1>aws_rds</h1>
+<p>Databricks medallion 아키텍처의 원본 데이터 소스로 쓰는 최소 구성 PostgreSQL RDS. 전용 VPC, 서브넷 2개, 보안그룹, RDS 인스턴스 1개로 구성되어 있다.</p>
+
+<h2>사전 요구사항</h2>
+<ul>
+  <li>AWS 자격증명 설정 (<code>aws sts get-caller-identity</code>로 확인)</li>
+  <li>Terraform &gt;= 1.5.0</li>
+  <li><code>psql</code> 클라이언트 (데이터 적재/쿼리 테스트용) — <code>sudo apt-get install -y postgresql-client-14</code></li>
+</ul>
+
+<h2>파일 구성</h2>
+<table>
+  <tr><th>파일</th><th>내용</th></tr>
+  <tr><td><code>main.tf</code></td><td>AWS provider, terraform 블록</td></tr>
+  <tr><td><code>variables.tf</code></td><td>리전, 프로젝트명, DB 계정/비밀번호, 네트워크 허용 범위 등 변수</td></tr>
+  <tr><td><code>vpc.tf</code></td><td>전용 VPC, 서브넷 2개(AZ 분산), IGW, 라우팅</td></tr>
+  <tr><td><code>security_group.tf</code></td><td>5432 포트 인바운드 규칙 (VPC 내부 + allowed_cidr_blocks)</td></tr>
+  <tr><td><code>rds.tf</code></td><td>DB 서브넷 그룹, RDS PostgreSQL 인스턴스</td></tr>
+  <tr><td><code>outputs.tf</code></td><td>엔드포인트, 포트, DB 이름 등 출력값</td></tr>
+  <tr><td><code>terraform.tfvars.example</code></td><td>tfvars 작성 예시</td></tr>
+</table>
+
+<h2>1. 최초 실행 (apply)</h2>
+<pre><code>cd aws_rds
+cp terraform.tfvars.example terraform.tfvars
+# terraform.tfvars에서 db_master_password 수정
+
+terraform init
+terraform apply</code></pre>
+
+<div class="warn">
+  <strong>비밀번호 제약:</strong> RDS 마스터 비밀번호는 출력 가능한 ASCII 문자만 허용하며 <code>/</code>, <code>@</code>, <code>"</code>, 공백은 사용할 수 없다.
+</div>
+
+<p>apply가 끝나면 다음 출력값을 확인할 수 있다.</p>
+<pre><code>terraform output db_instance_address   # 엔드포인트 호스트
+terraform output db_instance_port      # 5432
+terraform output db_name               # medallion_source</code></pre>
+
+<h2>2. 네트워크 / 보안</h2>
+<ul>
+  <li><code>publicly_accessible = true</code> (기본값) — Databricks 서버리스 컴퓨트가 공인 IP로 접속하기 때문에 필요</li>
+  <li><code>allowed_cidr_blocks</code> 기본값은 Databricks 서버리스 컴퓨트의 <strong>us-west-2</strong> 리전 아웃바운드 공인 IP 대역이다. Databricks workspace 리전이 다르면 <a href="https://www.databricks.com/networking/v1/ip-ranges.json">ip-ranges.json</a>에서 <code>platform=aws</code>, <code>region=&lt;workspace 리전&gt;</code>, <code>type=outbound</code> 항목으로 갱신해야 한다.</li>
+  <li>로컬 PC 등 다른 곳에서 직접 적재/쿼리하려면 본인 공인 IP(<code>/32</code>)를 <code>allowed_cidr_blocks</code>에 추가하고 <code>terraform apply</code>로 반영한 뒤, 작업이 끝나면 다시 제거해서 노출 범위를 최소화하는 것을 권장한다.</li>
+</ul>
+
+<h2>3. 데이터 생성 및 적재</h2>
+<p>생성/적재 스크립트는 상위 디렉토리(<code>terraform/</code>)에 있다.</p>
+<pre><code>cd ..
+python3 -m venv .venv
+.venv/bin/pip install -r requirements.txt
+.venv/bin/python generate_data.py          # data/sql/seed_data.sql 생성
+
+PGPASSWORD=&lt;db_master_password&gt; ./load_data.sh dbadmin   # 적재
+PGPASSWORD=&lt;db_master_password&gt; ./test_query.sh dbadmin  # sanity check 쿼리</code></pre>
+<p><code>load_data.sh</code> / <code>test_query.sh</code>는 <code>terraform -chdir=aws_rds output</code>으로 접속 정보(host/port/dbname)를 자동으로 읽어온다.</p>
+
+<h2>4. 정리 (destroy)</h2>
+<pre><code>cd aws_rds
+terraform destroy</code></pre>
+<div class="warn">
+  <code>skip_final_snapshot = true</code>로 구성되어 있어 destroy 시 <strong>최종 스냅샷 없이 데이터가 영구 삭제</strong>된다.
+</div>
+
+<h2>알려진 이슈</h2>
+<ul>
+  <li><code>engine_version</code> 기본값은 <code>16.14</code>다. AWS가 특정 마이너 버전을 단종시키면 <code>InvalidParameterCombination: Cannot find version ... for postgres</code> 에러가 나므로, <code>aws rds describe-db-engine-versions --engine postgres --region &lt;region&gt;</code>로 사용 가능한 버전을 확인 후 <code>variables.tf</code>를 갱신한다.</li>
+</ul>

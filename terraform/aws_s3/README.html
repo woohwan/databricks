@@ -1,0 +1,72 @@
+<title>aws_s3 README</title>
+<style>
+  body { font-family: -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; max-width: 860px; margin: 2rem auto; padding: 0 1.5rem; line-height: 1.6; color: #1a1a1a; }
+  h1 { border-bottom: 2px solid #2563eb; padding-bottom: .4rem; }
+  h2 { margin-top: 2.2rem; color: #1e3a8a; }
+  code { background: #f1f5f9; padding: .15rem .4rem; border-radius: 4px; font-size: .92em; }
+  pre { background: #0f172a; color: #e2e8f0; padding: 1rem 1.2rem; border-radius: 8px; overflow-x: auto; }
+  pre code { background: none; padding: 0; color: inherit; }
+  table { border-collapse: collapse; width: 100%; margin: .8rem 0; }
+  th, td { border: 1px solid #e2e8f0; padding: .5rem .7rem; text-align: left; font-size: .95em; }
+  th { background: #f8fafc; }
+  .warn { background: #fef2f2; border-left: 4px solid #dc2626; padding: .8rem 1rem; margin: 1rem 0; }
+  .note { background: #eff6ff; border-left: 4px solid #2563eb; padding: .8rem 1rem; margin: 1rem 0; }
+  ol > li { margin-bottom: .4rem; }
+</style>
+
+<h1>aws_s3</h1>
+<p>Databricks Unity Catalog가 medallion(bronze/silver/gold) 데이터를 저장할 S3 버킷과, Databricks가 그 버킷에 접근할 때 assume하는 IAM Role/Policy를 생성한다.</p>
+
+<h2>파일 구성</h2>
+<table>
+  <tr><th>파일</th><th>내용</th></tr>
+  <tr><td><code>main.tf</code></td><td>AWS/random provider, terraform 블록, caller identity 조회</td></tr>
+  <tr><td><code>variables.tf</code></td><td>리전, 프로젝트명, 버킷명, Databricks 마스터 role ARN, external_id, enable_self_assume</td></tr>
+  <tr><td><code>s3.tf</code></td><td>S3 버킷(랜덤 접미사), 퍼블릭 접근 차단, 기본 암호화(SSE-S3), bronze/silver/gold prefix</td></tr>
+  <tr><td><code>iam.tf</code></td><td>Unity Catalog storage credential용 IAM Role/Policy</td></tr>
+  <tr><td><code>outputs.tf</code></td><td>버킷명/ARN, IAM Role ARN, 다음 단계 안내 메시지</td></tr>
+  <tr><td><code>terraform.tfvars.example</code></td><td>tfvars 작성 예시 및 3단계 절차 안내</td></tr>
+</table>
+
+<h2>왜 2단계로 나눠서 apply하는가</h2>
+<p>AWS IAM은 role을 생성하는 시점에 <strong>그 role 자신의 ARN을 trust policy의 Principal로 참조할 수 없다</strong> (아직 존재하지 않는 엔티티라 <code>Invalid principal in policy</code> 에러 발생). Databricks가 요구하는 "self-assume" 조건은 role이 이미 존재해야 추가할 수 있다. 그래서 아래처럼 role을 먼저 만들고, 이후 재적용으로 self-assume을 켜는 2단계 구조로 되어 있다.</p>
+
+<h2>1단계 — IAM Role 생성 (placeholder external_id)</h2>
+<pre><code>cd aws_s3
+cp terraform.tfvars.example terraform.tfvars
+
+terraform init
+terraform apply   # external_id="0000", enable_self_assume=false (기본값)
+
+terraform output iam_role_arn</code></pre>
+
+<h2>2단계 — Databricks에서 Storage Credential 생성</h2>
+<p>Unity Catalog metastore에 연결된 workspace, metastore admin 권한 필요.</p>
+<ol>
+  <li>왼쪽 사이드바 <strong>Catalog</strong> 아이콘 클릭</li>
+  <li><strong>Connect &gt; Credentials</strong> 이동</li>
+  <li><strong>Create credential</strong> 클릭</li>
+  <li>유형 <strong>AWS IAM Role</strong> 선택, 이름 입력</li>
+  <li><strong>IAM Role ARN</strong>에 1단계 <code>iam_role_arn</code> 출력값 붙여넣기</li>
+  <li><strong>Create</strong> 클릭 → <strong>Credential created</strong> 대화상자에서 <strong>External ID</strong> 복사</li>
+</ol>
+
+<h2>3단계 — 실제 External ID 반영 후 재적용</h2>
+<pre><code># terraform.tfvars에 추가
+external_id        = "&lt;복사한 External ID&gt;"
+enable_self_assume  = true</code></pre>
+<pre><code>terraform apply</code></pre>
+<p>IAM Role의 trust policy가 실제 external_id + self-assume 조건으로 갱신된다.</p>
+
+<h2>4단계 — External Location 생성 (Databricks)</h2>
+<p>storage credential이 준비되면 Catalog Explorer에서 <code>s3://&lt;bucket_name&gt;/bronze/</code>, <code>/silver/</code>, <code>/gold/</code> 각각을 external location으로 등록해 medallion 스키마와 연결한다.</p>
+
+<div class="note">
+  <code>bucket_name</code> / <code>bucket_arn</code>은 <code>terraform output</code>으로 확인할 수 있다.
+</div>
+
+<h2>정리 (destroy)</h2>
+<pre><code>terraform destroy</code></pre>
+<div class="warn">
+  버킷은 <code>force_destroy = true</code>로 구성되어 있어 안에 데이터가 있어도 그대로 삭제된다. 이미 Databricks에 이 Role ARN으로 storage credential/external location을 만들어 뒀다면, destroy 후 해당 연결이 끊어지므로 Databricks 쪽도 함께 정리해야 한다.
+</div>

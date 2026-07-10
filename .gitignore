@@ -1,0 +1,9 @@
+edu1/
+
+terraform/.venv/
+terraform/data/sql/*.sql
+terraform/*/.terraform/
+terraform/*/terraform.tfstate
+terraform/*/terraform.tfstate.backup
+terraform/*/terraform.tfvars
+terraform/*/*.tfplan

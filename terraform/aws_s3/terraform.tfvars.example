@@ -1,0 +1,8 @@
+aws_region   = "us-west-2"
+project_name = "databricks-medallion"
+
+# 1단계: external_id="0000", enable_self_assume=false(기본값) 상태로 우선 apply → role 생성
+# 2단계: Databricks에서 iam_role_arn(output)으로 storage credential 생성 → 발급된 External ID 확인
+# 3단계: 아래 두 값을 채우고 재적용 (role이 이미 존재해야 self-assume 추가 가능)
+# external_id         = "<databricks가 발급한 external id>"
+# enable_self_assume  = true

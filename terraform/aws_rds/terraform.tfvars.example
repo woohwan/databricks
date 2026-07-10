@@ -1,0 +1,8 @@
+aws_region         = "us-west-2"
+project_name       = "databricks-medallion"
+db_master_password = "CHANGE_ME_8_CHARS_MIN"
+
+# 기본값(publicly_accessible=true, allowed_cidr_blocks=Databricks 서버리스 IP)으로
+# Databricks 서버리스 컴퓨트에서 바로 연결할 수 있습니다.
+# 로컬 PC 등에서도 데이터를 적재하려면 본인 공인 IP를 추가하세요.
+# allowed_cidr_blocks = ["18.246.106.0/24", "3.42.138.0/25", "44.234.192.32/28", "52.27.216.188/32", "<내_공인_IP>/32"]
