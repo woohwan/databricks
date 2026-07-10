@@ -1,5 +1,5 @@
 aws_region         = "us-west-2"
-project_name       = "databricks-medallion"
+project_name       = "databricks-agent"
 db_master_password = "CHANGE_ME_8_CHARS_MIN"
 
 # 기본값(publicly_accessible=true, allowed_cidr_blocks=Databricks 서버리스 IP)으로

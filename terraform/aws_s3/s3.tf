@@ -1,10 +1,8 @@
-resource "random_id" "suffix" {
-  byte_length = 4
-}
-
 locals {
-  bucket_name = var.bucket_name != "" ? var.bucket_name : "${var.project_name}-medallion-${random_id.suffix.hex}"
-  layers      = ["bronze", "silver", "gold"]
+  # 계정 ID를 그대로 노출하지 않으면서, 계정마다 고정되고 유일한 접미사로 사용
+  account_hash = substr(md5(data.aws_caller_identity.current.account_id), 0, 8)
+  bucket_name  = var.bucket_name != "" ? var.bucket_name : "${var.project_name}-medallion-${local.account_hash}"
+  layers       = ["bronze", "silver", "gold"]
 }
 
 resource "aws_s3_bucket" "this" {

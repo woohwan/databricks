@@ -1,5 +1,5 @@
 aws_region   = "us-west-2"
-project_name = "databricks-medallion"
+project_name = "databricks-agent"
 
 # 1단계: external_id="0000", enable_self_assume=false(기본값) 상태로 우선 apply → role 생성
 # 2단계: Databricks에서 iam_role_arn(output)으로 storage credential 생성 → 발급된 External ID 확인
