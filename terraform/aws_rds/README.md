@@ -46,6 +46,14 @@ terraform output db_name               # medallion_source
 - `publicly_accessible = true` (기본값) — Databricks 서버리스 컴퓨트가 공인 IP로 접속하기 때문에 필요
 - `allowed_cidr_blocks` 기본값은 Databricks 서버리스 컴퓨트의 **us-west-2** 리전 아웃바운드 공인 IP 대역이다. Databricks workspace 리전이 다르면 [ip-ranges.json](https://www.databricks.com/networking/v1/ip-ranges.json)에서 `platform=aws`, `region=<workspace 리전>`, `type=outbound` 항목으로 갱신해야 한다.
 - 로컬 PC 등 다른 곳에서 직접 적재/쿼리하려면 본인 공인 IP(`/32`)를 `allowed_cidr_blocks`에 추가하고 `terraform apply`로 반영한 뒤, 작업이 끝나면 다시 제거해서 노출 범위를 최소화하는 것을 권장한다.
+- **AWS CloudShell에서 적재 시 connection timeout이 발생하는 경우:** CloudShell의 아웃바운드 공인 IP도 `allowed_cidr_blocks`에 없으면 보안그룹에서 5432 포트 패킷이 조용히 드롭되어 (connection refused가 아닌) timeout이 발생한다. CloudShell 세션에서 다음과 같이 본인 IP를 확인해 추가하고 재적용한다.
+
+  ```bash
+  MY_IP=$(curl -s ifconfig.me)
+  terraform apply -var="allowed_cidr_blocks=[\"18.246.106.0/24\",\"3.42.138.0/25\",\"44.234.192.32/28\",\"52.27.216.188/32\",\"${MY_IP}/32\"]"
+  ```
+
+  CloudShell의 공인 IP는 고정이 아니므로, 세션이 새로 시작되어 IP가 바뀌면 위 과정을 다시 반복해야 한다.
 
 ## 3. 데이터 생성 및 적재
 
