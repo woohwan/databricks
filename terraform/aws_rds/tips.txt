@@ -1,0 +1,23 @@
+psql로 RDS 테이블 데이터 확인하기
+================================
+
+1. 접속 (terraform output에서 접속 정보 자동으로 읽어옴)
+
+cd terraform
+PGHOST=$(terraform -chdir=aws_rds output -raw db_instance_address) \
+PGPORT=$(terraform -chdir=aws_rds output -raw db_instance_port) \
+PGDATABASE=$(terraform -chdir=aws_rds output -raw db_name) \
+PGUSER=dbadmin \
+PGPASSWORD='W0rkSh0p!' \
+psql
+
+2. 접속 후 자주 쓰는 명령
+
+\dt                              -- 테이블 목록
+SELECT * FROM customers LIMIT 10;  -- 데이터 조회
+\d customers                     -- 테이블 스키마 확인
+\q                                -- 종료
+
+3. sanity check 쿼리만 빠르게 보려면
+
+PGPASSWORD='W0rkSh0p!' ./test_query.sh dbadmin
