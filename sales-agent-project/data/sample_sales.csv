@@ -1,0 +1,101 @@
+order_id,order_date,region,category,product,quantity,unit_price
+1001,2026-02-10,APAC,Electronics,Monitor,4,320000
+1002,2026-01-15,APAC,Office Supplies,Notebook Set,2,8000
+1003,2026-02-07,EMEA,Electronics,Wireless Mouse,2,25000
+1004,2026-01-14,APAC,Office Supplies,Stapler,1,9000
+1005,2026-02-05,APAC,Office Supplies,Stapler,7,9000
+1006,2026-01-15,EMEA,Office Supplies,Pen Pack,1,6000
+1007,2026-02-18,APAC,Office Supplies,Whiteboard,6,55000
+1008,2026-01-18,APAC,Electronics,Monitor,2,320000
+1009,2026-01-06,EMEA,Electronics,Monitor,6,320000
+1010,2026-02-08,EMEA,Electronics,Webcam,2,68000
+1011,2026-03-01,EMEA,Electronics,USB Hub,5,22000
+1012,2026-02-23,AMER,Office Supplies,Pen Pack,4,6000
+1013,2026-02-15,APAC,Electronics,Keyboard,5,45000
+1014,2026-01-06,APAC,Electronics,Webcam,5,68000
+1015,2026-01-30,AMER,Home,Air Purifier,6,150000
+1016,2026-01-23,APAC,Office Supplies,Pen Pack,2,6000
+1017,2026-02-08,AMER,Electronics,USB Hub,4,22000
+1018,2026-01-11,EMEA,Home,Humidifier,4,39000
+1019,2026-02-13,EMEA,Electronics,Keyboard,1,45000
+1020,2026-02-21,EMEA,Home,Humidifier,2,39000
+1021,2026-01-14,AMER,Office Supplies,Pen Pack,4,6000
+1022,2026-02-11,EMEA,Home,Standing Desk,3,480000
+1023,2026-01-17,APAC,Electronics,USB Hub,5,22000
+1024,2026-02-17,AMER,Home,Office Chair,7,210000
+1025,2026-01-24,APAC,Electronics,USB Hub,8,22000
+1026,2026-01-06,APAC,Electronics,Keyboard,3,45000
+1027,2026-02-20,AMER,Home,Office Chair,2,210000
+1028,2026-01-25,EMEA,Office Supplies,Whiteboard,5,55000
+1029,2026-02-05,APAC,Office Supplies,Notebook Set,5,8000
+1030,2026-02-19,AMER,Home,Desk Lamp,5,18000
+1031,2026-01-28,APAC,Home,Desk Lamp,5,18000
+1032,2026-02-02,APAC,Office Supplies,Notebook Set,5,8000
+1033,2026-02-23,AMER,Office Supplies,Stapler,4,9000
+1034,2026-01-10,EMEA,Electronics,USB Hub,1,22000
+1035,2026-02-08,EMEA,Home,Desk Lamp,2,18000
+1036,2026-03-01,EMEA,Home,Air Purifier,1,150000
+1037,2026-01-16,AMER,Electronics,Wireless Mouse,8,25000
+1038,2026-02-22,APAC,Office Supplies,Sticky Notes,3,3500
+1039,2026-02-12,EMEA,Office Supplies,Sticky Notes,5,3500
+1040,2026-02-03,AMER,Home,Air Purifier,4,150000
+1041,2026-02-15,EMEA,Home,Humidifier,8,39000
+1042,2026-02-27,AMER,Home,Desk Lamp,4,18000
+1043,2026-01-15,APAC,Home,Desk Lamp,4,18000
+1044,2026-02-07,APAC,Electronics,Wireless Mouse,1,25000
+1045,2026-01-15,APAC,Electronics,Monitor,2,320000
+1046,2026-02-02,APAC,Home,Standing Desk,4,480000
+1047,2026-02-04,APAC,Office Supplies,Stapler,8,9000
+1048,2026-01-16,EMEA,Home,Air Purifier,2,150000
+1049,2026-01-07,AMER,Home,Humidifier,7,39000
+1050,2026-01-27,EMEA,Office Supplies,Notebook Set,2,8000
+1051,2026-01-04,EMEA,Office Supplies,Pen Pack,2,6000
+1052,2026-01-16,APAC,Electronics,USB Hub,8,22000
+1053,2026-01-09,EMEA,Electronics,Monitor,8,320000
+1054,2026-01-16,APAC,Home,Office Chair,2,210000
+1055,2026-01-04,AMER,Office Supplies,Notebook Set,2,8000
+1056,2026-03-01,APAC,Electronics,Webcam,8,68000
+1057,2026-01-31,APAC,Home,Desk Lamp,3,18000
+1058,2026-01-25,APAC,Home,Humidifier,8,39000
+1059,2026-01-19,EMEA,Office Supplies,Stapler,8,9000
+1060,2026-01-10,APAC,Home,Air Purifier,1,150000
+1061,2026-02-07,AMER,Office Supplies,Notebook Set,6,8000
+1062,2026-01-04,APAC,Office Supplies,Whiteboard,3,55000
+1063,2026-01-04,AMER,Electronics,Keyboard,2,45000
+1064,2026-02-08,APAC,Office Supplies,Sticky Notes,7,3500
+1065,2026-01-08,AMER,Electronics,USB Hub,1,22000
+1066,2026-02-09,APAC,Home,Office Chair,6,210000
+1067,2026-03-01,EMEA,Electronics,Monitor,4,320000
+1068,2026-01-17,EMEA,Electronics,Monitor,8,320000
+1069,2026-01-21,APAC,Electronics,Webcam,2,68000
+1070,2026-01-05,AMER,Electronics,USB Hub,5,22000
+1071,2026-01-09,EMEA,Electronics,Keyboard,6,45000
+1072,2026-01-19,APAC,Home,Office Chair,5,210000
+1073,2026-02-09,AMER,Office Supplies,Notebook Set,5,8000
+1074,2026-03-01,AMER,Electronics,Keyboard,5,45000
+1075,2026-01-08,APAC,Office Supplies,Stapler,3,9000
+1076,2026-01-18,EMEA,Office Supplies,Sticky Notes,6,3500
+1077,2026-01-14,AMER,Office Supplies,Pen Pack,8,6000
+1078,2026-01-17,APAC,Electronics,Webcam,5,68000
+1079,2026-01-03,APAC,Home,Air Purifier,5,150000
+1080,2026-01-11,AMER,Home,Office Chair,7,210000
+1081,2026-02-05,APAC,Electronics,Wireless Mouse,3,25000
+1082,2026-02-04,APAC,Home,Office Chair,3,210000
+1083,2026-01-28,APAC,Electronics,Monitor,6,320000
+1084,2026-02-27,APAC,Home,Air Purifier,4,150000
+1085,2026-02-12,APAC,Home,Office Chair,7,210000
+1086,2026-02-09,AMER,Electronics,Keyboard,3,45000
+1087,2026-02-21,APAC,Home,Desk Lamp,3,18000
+1088,2026-02-17,EMEA,Home,Air Purifier,5,150000
+1089,2026-01-11,AMER,Electronics,Webcam,1,68000
+1090,2026-02-24,EMEA,Electronics,Keyboard,8,45000
+1091,2026-01-23,EMEA,Electronics,Keyboard,1,45000
+1092,2026-02-12,APAC,Home,Humidifier,5,39000
+1093,2026-02-25,APAC,Home,Humidifier,7,39000
+1094,2026-02-13,AMER,Home,Desk Lamp,2,18000
+1095,2026-02-26,EMEA,Electronics,USB Hub,5,22000
+1096,2026-01-03,APAC,Office Supplies,Whiteboard,6,55000
+1097,2026-02-16,EMEA,Home,Office Chair,2,210000
+1098,2026-01-25,AMER,Electronics,Monitor,1,320000
+1099,2026-02-15,EMEA,Electronics,USB Hub,4,22000
+1100,2026-01-24,EMEA,Electronics,Monitor,6,320000
