@@ -1,4 +1,5 @@
 edu1/
+academy/
 
 terraform/.venv/
 terraform/data/sql/*.sql
