@@ -1,0 +1,11 @@
+resources:
+  apps:
+    sales_agent_app:
+      name: 'sales-agent-app'
+      description: '판매 데이터에 질문하는 챗봇 에이전트'
+      source_code_path: ..
+      resources:
+        - name: 'sql-warehouse'
+          sql_warehouse:
+            id: ${var.sql_warehouse_id}
+            permission: 'CAN_USE'

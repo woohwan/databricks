@@ -1,0 +1,21 @@
+resources:
+  jobs:
+    build_sales_table:
+      name: build_sales_table
+
+      tasks:
+        - task_key: run_etl
+          spark_python_task:
+            python_file: ../src/etl/build_sales_table.py
+          environment_key: default_env
+
+      environments:
+        - environment_key: default_env
+          spec:
+            environment_version: "2"
+            dependencies: []
+
+      trigger:
+        periodic:
+          interval: 1
+          unit: DAYS

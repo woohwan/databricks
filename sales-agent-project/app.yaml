@@ -1,0 +1,6 @@
+command: ['streamlit', 'run', 'app/app.py']
+env:
+  - name: 'DATABRICKS_HTTP_PATH'
+    valueFrom: 'sql-warehouse'
+  - name: 'STREAMLIT_GATHER_USAGE_STATS'
+    value: 'false'

@@ -1,0 +1,32 @@
+bundle:
+  name: sales-agent-project
+
+include:
+  - resources/*.yml
+
+variables:
+  sql_warehouse_id:
+    description: "에이전트가 쿼리에 사용한 SQL 웨어하우스 ID"
+
+targets:
+  dev:
+    mode: development
+    default: true
+    workspace:
+      host: https://dbc-ee65e920-01b9.cloud.databricks.com/
+      root_path: /Workspace/Users/${workspace.current_user.userName}/.bundle/${bundle.name}/${bundle.target}
+    variables:
+      sql_warehouse_id: 8a750c31f0e71302
+
+  prod:
+    mode: production
+    workspace:
+      host: https://dbc-ee65e920-01b9.cloud.databricks.com/
+      root_path: /Workspace/Shared/.bundle/${bundle.name}/${bundle.target}
+    variables:
+      sql_warehouse_id: 8a750c31f0e71302
+    permissions:
+      - user_name: whpark@saltware.co.kr
+        level: CAN_MANAGE
+    run_as:
+      user_name: sales-agent-prod-sp
