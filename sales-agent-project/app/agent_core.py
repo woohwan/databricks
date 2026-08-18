@@ -17,24 +17,44 @@ SYSTEM_PROMPT = (
 # Databricks SDK Config: 로컬/배포 환경 모두에서 자동으로 인증정보를 찾아줌
 cfg = Config()
 
+from databricks.sdk import WorkspaceClient
 
 def _get_llm_client() -> OpenAI:
-    host = cfg.host.rstrip("/")
-    token = cfg.token
-    return OpenAI(api_key=token, base_url=f"{host}/serving-endpoints")
+    print("STEP 1: LLM 클라이언트 생성 시작", flush=True)
+
+    w = WorkspaceClient()
+    token = w.config.oauth_token().access_token
+    host = w.config.host.rstrip("/")
+    print(f"STEP 1a: host={host}, token 발급됨={bool(token)}", flush=True)
+
+    client = OpenAI(
+        api_key=token,
+        base_url=f"{host}/serving-endpoints",
+        timeout=60.0,
+    )
+    print("STEP 1 완료: LLM 클라이언트 생성됨", flush=True)
+    return client
 
 
 def _query_sales_data() -> str:
-    """SQL 웨어하우스에서 요약 테이블 전체를 가져와 텍스트로 변환 (tool)."""
+    warehouse_id = os.environ["DATABRICKS_HTTP_PATH"]
+    http_path = f"/sql/1.0/warehouses/{warehouse_id}"
+
+    print(f"STEP 2: SQL 웨어하우스 연결 시도 (http_path={http_path})", flush=True)
+    print(f"STEP 2a: cfg.host={cfg.host}, auth_type={cfg.auth_type}", flush=True)
+
     with dbsql.connect(
         server_hostname=cfg.host.replace("https://", ""),
-        http_path=os.environ["DATABRICKS_HTTP_PATH"],
+        http_path=http_path,
         credentials_provider=lambda: cfg.authenticate,
+        _socket_timeout=60,
     ) as conn:
+        print("STEP 2b: 연결 성공", flush=True)
         with conn.cursor() as cursor:
             cursor.execute(f"SELECT * FROM {TABLE_NAME} LIMIT 200")
             rows = cursor.fetchall()
             columns = [c[0] for c in cursor.description]
+            print(f"STEP 2c: {len(rows)}건 조회됨", flush=True)
 
     lines = [", ".join(columns)]
     for row in rows:
@@ -43,23 +63,19 @@ def _query_sales_data() -> str:
 
 
 def answer_question(user_question: str) -> str:
-    """사용자 질문에 대해 데이터 조회 → LLM 답변 생성까지 한 번에 처리."""
+    print(f"STEP 0: 질문 받음 - {user_question}", flush=True)
     data_context = _query_sales_data()
 
     client = _get_llm_client()
+    print("STEP 3: LLM 호출 시작", flush=True)
     response = client.chat.completions.create(
         model=MODEL_NAME,
         messages=[
             {"role": "system", "content": SYSTEM_PROMPT},
-            {
-                "role": "user",
-                "content": (
-                    f"다음은 판매 요약 데이터(CSV 형식)야:\n\n{data_context}\n\n"
-                    f"질문: {user_question}"
-                ),
-            },
+            {"role": "user", "content": f"다음은 판매 요약 데이터(CSV 형식)야:\n\n{data_context}\n\n질문: {user_question}"},
         ],
         max_tokens=500,
         temperature=0.2,
     )
+    print("STEP 3 완료: LLM 응답 받음", flush=True)
     return response.choices[0].message.content
