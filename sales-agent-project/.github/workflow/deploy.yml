@@ -1,0 +1,36 @@
+name: Deploy Sales Agent
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    run-on: ubuntu-latest
+    env:
+      DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+      DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: databricks/setup-cli@main
+      
+      - name: Validate bundle
+        run: databricks bundle validate -t prod
+
+      - name: Deploy bundle
+        run: databricks bundle deploy -t prod
+
+      - name: Run ETL job
+        run: databricks bundle run build_sales_table -t prod
+
+      - name: Deploy & start app
+        run: databricks bundle run sales_agent_app -t prod
+
+      - name: Wait for app to be running
+        run: |
+          for i in $(seq 1 20); do
+            STATE=$(databricks apps get sales_agent_app --output json |jq -r '.app_status.sate')
+            echo "Attempt $i/20: state=$STATE"
+            [ "$STATE" = "RUNNING" ] && exit 0
+            sleep 15
+          done
+          echo "App did not reach RUNNING state"; exit 1
